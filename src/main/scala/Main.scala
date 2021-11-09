@@ -17,6 +17,7 @@ object Main {
               "isPass int, isSack int, isPenalty int, rushDirection String, penaltyYards int)" +
               "ROW FORMAT Delimited fields terminated by ','")
 //    spark.sql("create table if not exists test_table(name varchar(255), age int)")
-    spark.sql("Show tables ").show()
+    spark.sql("Load data Local Inpath 'nfl_data.csv' into table nfl_data")
+    spark.sql("select * from nfl_data ").show()
   }
 }
