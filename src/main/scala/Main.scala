@@ -11,13 +11,30 @@ object Main {
       .enableHiveSupport()
       .getOrCreate()
 
+    spark.sparkContext.setLogLevel("ERROR")
+
     spark.sql("DROP table IF EXISTS nfl_data")
-    spark.sql("CREATE table IF NOT exists nfl_data(gameId int, gameDate Date, offenseTeam String," +
-              "defenseTeam String, description String,seasonYear int, yards int, formation String, isRush int," +
-              "isPass int, isSack int, isPenalty int, rushDirection String, penaltyYards int)" +
-              "ROW FORMAT Delimited fields terminated by ','")
-//    spark.sql("create table if not exists test_table(name varchar(255), age int)")
+    spark.sql("CREATE table IF NOT exists nfl_data(GameId int, GameDate Date, OffenseTeam String," +
+              "DefenseTeam String, Description String,SeasonYear int, Yards int, Formation String, IsRush int," +
+              "IsPass int, IsSack int, IsPenalty int, RushDirection String, PenaltyYards int)" +
+              "ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'")
+
     spark.sql("Load data Local Inpath 'nfl_data.csv' into table nfl_data")
     spark.sql("select * from nfl_data ").show()
+
+    println("How many sacks were there?")
+    spark.sql("SELECT count(isSack) as Sack_Count " +
+      "FROM nfl_data WHERE isSack = 1").show()
+
+    println("How many run plays were run through the right guard?")
+    spark.sql("SELECT count(isRush) as Run_Plays_Right_Guard " +
+      "FROM nfl_data WHERE isRush = 1 AND rushDirection = 'RIGHT GUARD'").show()
+
+    println("How many penalty yards were there?")
+    spark.sql("SELECT sum(penaltyYards) as Penalty_Yards_Total " +
+      "FROM nfl_data").show()
+
+    println("How many rushing yards were there?")
+    spark.sql("SELECT sum(yards) as Rushing_Yards_Total ")
   }
 }
