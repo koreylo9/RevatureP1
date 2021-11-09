@@ -11,6 +11,12 @@ object Main {
       .enableHiveSupport()
       .getOrCreate()
 
-    println("Spark Session Created")
+    spark.sql("DROP table IF EXISTS nfl_data")
+    spark.sql("CREATE table IF NOT exists nfl_data(gameId int, gameDate Date, offenseTeam String," +
+              "defenseTeam String, description String,seasonYear int, yards int, formation String, isRush int," +
+              "isPass int, isSack int, isPenalty int, rushDirection String, penaltyYards int)" +
+              "ROW FORMAT Delimited fields terminated by ','")
+//    spark.sql("create table if not exists test_table(name varchar(255), age int)")
+    spark.sql("Show tables ").show()
   }
 }
