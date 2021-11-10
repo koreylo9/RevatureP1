@@ -1,5 +1,8 @@
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.{SparkConf,SparkContext}
+//import org.apache.log4j.Logger
+//import org.apache.log4j.Level
+
 
 object Main {
   def main(args:Array[String]): Unit = {
@@ -12,6 +15,9 @@ object Main {
       .getOrCreate()
 
     spark.sparkContext.setLogLevel("ERROR")
+//    Logger.getLogger("org").setLevel(Level.OFF)
+//    Logger.getLogger("akka").setLevel(Level.OFF)
+
 
     spark.sql("DROP table IF EXISTS nfl_data")
     spark.sql("CREATE table IF NOT exists nfl_data(GameId int, GameDate Date, OffenseTeam String," +
@@ -35,6 +41,16 @@ object Main {
       "FROM nfl_data").show()
 
     println("How many rushing yards were there?")
-    spark.sql("SELECT sum(yards) as Rushing_Yards_Total ")
+    spark.sql("SELECT sum(yards) as Rushing_Yards_Total " +
+      "FROM nfl_data").show()
+
+    println("How many plays in the past two weeks were under Shotgun?")
+    spark.sql("SELECT count(formation) as Shotgun_Plays " +
+      "FROM nfl_Data WHERE formation = 'SHOTGUN'").show()
+
+    println("Will there be more run plays or pass plays for next week?")
+    spark.sql("SELECT r.count as run_count, m.count as pass_count FROM " +
+      "(SELECT count(isRush) count FROM nfl_data WHERE isRush = 1 AND (gamedate = '2021-11-01' OR gamedate = '2021-10-31')) r, " +
+      "(SELECT count(isPAss) count FROM nfl_data WHERE isPass = 1 AND (gamedate = '2021-11-01' OR gamedate = '2021-10-31')) m").show()
   }
 }
