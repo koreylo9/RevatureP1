@@ -2,10 +2,14 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.{SparkConf,SparkContext}
 
 object Hive {
-
+  def main(args:Array[String]) : Unit = {
+    connect()
+    showData("1")
+  }
+  private var spark:SparkSession = _
   def connect() : Unit = {
     System.setProperty("hadoop.home.dir", "C:\\hadoop")
-    val spark = SparkSession
+    spark = SparkSession
       .builder()
       .appName("NFL DATA")
       .config("spark.master","local")
@@ -24,30 +28,25 @@ object Hive {
     spark.sql("select * from nfl_data ").show()
   }
 
-  //    println("How many sacks were there?")
-  //    spark.sql("SELECT count(isSack) as Sack_Count " +
-  //      "FROM nfl_data WHERE isSack = 1").show()
-  //
-  //    println("How many run plays were run through the right guard?")
-  //    spark.sql("SELECT count(isRush) as Run_Plays_Right_Guard " +
-  //      "FROM nfl_data WHERE isRush = 1 AND rushDirection = 'RIGHT GUARD'").show()
-  //
-  //    println("How many penalty yards were there?")
-  //    spark.sql("SELECT sum(penaltyYards) as Penalty_Yards_Total " +
-  //      "FROM nfl_data").show()
-  //
-  //    println("How many rushing yards were there?")
-  //    spark.sql("SELECT sum(yards) as Rushing_Yards_Total " +
-  //      "FROM nfl_data").show()
-  //
-  //    println("How many plays in the past two weeks were under Shotgun?")
-  //    spark.sql("SELECT count(formation) as Shotgun_Plays " +
-  //      "FROM nfl_Data WHERE formation = 'SHOTGUN'").show()
-  //
-  //    println("Will there be more run plays or pass plays for next week?")
-  //    spark.sql("SELECT r.count as run_count, m.count as pass_count FROM " +
-  //      "(SELECT count(isRush) count FROM nfl_data WHERE isRush = 1 AND (gamedate = '2021-11-01' OR gamedate = '2021-10-31')) r, " +
-  //      "(SELECT count(isPAss) count FROM nfl_data WHERE isPass = 1 AND (gamedate = '2021-11-01' OR gamedate = '2021-10-31')) m").show()
+
+  def showData(choice:String) : Unit = {
+        choice match {
+          case "1" => spark.sql("SELECT count(isSack) as Total_Sacks " +
+            "FROM nfl_data WHERE isSack = 1").show()
+          case "2" => spark.sql("SELECT sum(yards) as Total_Rushing_Yards " +
+            "FROM nfl_data").show()
+          case "3" =>  spark.sql("SELECT sum(penaltyYards) as Total_Penalty_Yards " +
+            "FROM nfl_data").show()
+          case "4" => spark.sql("SELECT count(isRush) as Run_Plays_Right_Guard " +
+            "FROM nfl_data WHERE isRush = 1 AND rushDirection = 'RIGHT GUARD'").show()
+          case "5" => spark.sql("SELECT count(formation) as Total_Shotgun_Plays " +
+            "FROM nfl_Data WHERE formation = 'SHOTGUN'").show()
+          case "6" => spark.sql("SELECT r.count as run_count, m.count as pass_count FROM " +
+            "(SELECT count(isRush) count FROM nfl_data WHERE isRush = 1 AND (gamedate = '2021-11-01' OR gamedate = '2021-10-31')) r, " +
+            "(SELECT count(isPAss) count FROM nfl_data WHERE isPass = 1 AND (gamedate = '2021-11-01' OR gamedate = '2021-10-31')) m").show()
+          case _ => println("No Results")
+        }
+  }
 
 
 }

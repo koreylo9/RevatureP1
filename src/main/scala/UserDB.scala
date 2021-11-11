@@ -23,7 +23,7 @@ object UserDB {
     try{
       val statement = connection.createStatement()
       resultSet = statement.executeUpdate(s"INSERT into users(firstname,lastname,email,password,isAdmin) values ('$fname','$lname','$email','$password',$admin);")
-      println(resultSet)
+      //println(resultSet)
       resultSet
 
     }
@@ -34,16 +34,39 @@ object UserDB {
     }
   }
 
-  def checkLogin(username:String, password: String) : Unit = {
+  def checkAdmin(email:String) : Boolean = {
+    val statement = connection.createStatement()
+    val resultSet = statement.executeQuery(s"SELECT isAdmin FROM users WHERE email = '$email'")
+    if(resultSet.next() == false){
+      false
+    }
+    else{
+      return resultSet.getBoolean("isAdmin")
+    }
+  }
+
+  def checkLogin(email:String, password: String) : Boolean = {
+    //var resultSet = 0
     try {
       val statement = connection.createStatement()
-
-
+      val resultSet = statement.executeQuery(s"SELECT * FROM users WHERE email = '$email' AND password = '$password'")
+      if(resultSet.next() == false){
+        println("Username or password incorrect!")
+        false
+      }
+      else {
+        println("Login Successful")
+        println("")
+        true
+      }
     } catch {
-      case timeout: java.sql.SQLTimeoutException =>
-        timeout.printStackTrace()
       case sql: java.sql.SQLException =>
         sql.printStackTrace()
+        false
     }
+  }
+
+  def closeConnection() : Unit = {
+    connection.close()
   }
 }
