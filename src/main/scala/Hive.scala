@@ -25,7 +25,7 @@ object Hive {
                   "ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'")
 
     spark.sql("Load data Local Inpath 'nfl_data.csv' into table nfl_data")
-    spark.sql("select * from nfl_data ").show()
+//    spark.sql("select * from nfl_data ").show()
   }
 
 
@@ -44,6 +44,7 @@ object Hive {
           case "6" => spark.sql("SELECT r.count as run_count, m.count as pass_count FROM " +
             "(SELECT count(isRush) count FROM nfl_data WHERE isRush = 1 AND (gamedate = '2021-11-01' OR gamedate = '2021-10-31')) r, " +
             "(SELECT count(isPAss) count FROM nfl_data WHERE isPass = 1 AND (gamedate = '2021-11-01' OR gamedate = '2021-10-31')) m").show()
+          case "7" => spark.sql("select * from nfl_data ").show(50)
           case _ => println("No Results")
         }
   }

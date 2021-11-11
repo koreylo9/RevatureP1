@@ -29,6 +29,7 @@ object Main {
     }
   }
 
+  @tailrec
   def login() : Unit = {
     print("Email: ")
     val email = scala.io.StdIn.readLine()
@@ -74,25 +75,87 @@ object Main {
     }
   }
 
-
+  @tailrec
   def dataMenuAdmin() : Unit = {
     println("NFL Data (ADMIN)")
-    println("(1) Show data")
+    println("(1) Show Table Data")
     println("(2) Users")
     println("(3) Logout")
     println("(4) Exit")
     val option = scala.io.StdIn.readLine()
     option match {
-      case "1" => Hive.showData(option)
+      case "1" => Hive.showData("7")
       case "2" => userCRUD()
       case "3" => startmenu()
       case "4" => exitApp()
       case _ => dataMenu()
     }
+    dataMenuAdmin()
   }
 
+  @tailrec
   def userCRUD() : Unit = {
+    println("User Editor")
+    println("(1) Show Users")
+    println("(2) Create User")
+    println("(3) Give Admin Privileges")
+    println("(4) Delete User")
+    println("(5) Return to Admin Menu")
+    println("(7) Logout")
+    println("(7) Exit")
+    val option = scala.io.StdIn.readLine()
+    option match {
+      case "1" => UserDB.showUsers()
+      case "2" => adminCreateUser()
+      case "3" => giveAdmin()
+      case "4" => deleteUser()
+      case "5" => dataMenuAdmin()
+      case "6" => startmenu()
+      case "7" => exitApp()
+      case _ => dataMenuAdmin()
+    }
+    userCRUD()
+  }
 
+  def deleteUser() : Unit = {
+    println("==== Delete User ====")
+    println("User ID you want to give Delete: ")
+    var id = scala.io.StdIn.readInt()
+    UserDB.deleteUser(id)
+  }
+
+  def giveAdmin() : Unit = {
+    println("==== Admin Privileges ====")
+    println("User ID you want to give admin privileges: ")
+    var id = scala.io.StdIn.readInt()
+    UserDB.updateAdmin(id)
+  }
+
+  @tailrec
+  def adminCreateUser() : Unit = {
+    var admin = false
+    println("==== Admin Create User ====")
+    print("First Name: ")
+    val fname = scala.io.StdIn.readLine()
+    print("Last Name: ")
+    val lname = scala.io.StdIn.readLine()
+    print("Email: ")
+    val email = scala.io.StdIn.readLine()
+    print("Password: ")
+    val password = scala.io.StdIn.readLine()
+    print("Admin Privileges (1 or 0):")
+    val isAdmin = scala.io.StdIn.readLine()
+    if(isAdmin == "1"){
+      admin = true
+    }
+    val result = UserDB.createUser(fname, lname, email, password, admin)
+    if(result == 1){
+      println("Account Created!")
+      println("")
+    }
+    else{
+      adminCreateUser()
+    }
   }
 
   def dataMenu() : Unit = {

@@ -18,6 +18,29 @@ object UserDB {
     }
   }
 
+  def updateAdmin(id:Int) : Unit = {
+    val statement = connection.createStatement()
+    val resultSet = statement.executeUpdate(s"UPDATE users SET isAdmin = true WHERE id = '$id'")
+    if(resultSet == 0){
+      println("User does not exist!")
+    }
+    else{
+      println("Update Completed!")
+    }
+
+  }
+
+  def deleteUser(id:Int) : Unit = {
+    val statement = connection.createStatement()
+    val resultSet = statement.executeUpdate(s"DELETE FROM users WHERE id = '$id'")
+    if(resultSet == 0){
+      println("User does not exist!")
+    }
+    else{
+      println(s"User '$id' deleted!'")
+    }
+  }
+
   def createUser(fname:String, lname:String,email:String,password:String,admin:Boolean) : Int = {
     var resultSet = 0
     try{
@@ -37,11 +60,11 @@ object UserDB {
   def checkAdmin(email:String) : Boolean = {
     val statement = connection.createStatement()
     val resultSet = statement.executeQuery(s"SELECT isAdmin FROM users WHERE email = '$email'")
-    if(resultSet.next() == false){
+    if(!resultSet.next()){
       false
     }
     else{
-      return resultSet.getBoolean("isAdmin")
+      resultSet.getBoolean("isAdmin")
     }
   }
 
@@ -50,7 +73,7 @@ object UserDB {
     try {
       val statement = connection.createStatement()
       val resultSet = statement.executeQuery(s"SELECT * FROM users WHERE email = '$email' AND password = '$password'")
-      if(resultSet.next() == false){
+      if(!resultSet.next()){
         println("Username or password incorrect!")
         false
       }
@@ -63,6 +86,26 @@ object UserDB {
       case sql: java.sql.SQLException =>
         sql.printStackTrace()
         false
+    }
+  }
+
+  def showUsers() : Unit = {
+    val statement = connection.createStatement()
+    val resultSet = statement.executeQuery("SELECT * FROM users")
+    if(!resultSet.next()){
+      println("No users found!")
+    }
+    else{
+      printf("%-25s%-25s%-25s%-25s%-25s%-25s\n","ID","FirstName","LastName","Email","Password","isAdmin")
+      do{
+        val ID = resultSet.getInt("id")
+        val fname = resultSet.getString("firstname")
+        val lname = resultSet.getString("lastname")
+        val email = resultSet.getString("email")
+        val password = resultSet.getString("password")
+        val isadmin = resultSet.getBoolean("isAdmin")
+        printf("%-25s%-25s%-25s%-25s%-25s%-25s\n",ID,fname,lname,email,password,isadmin)
+      }while(resultSet.next())
     }
   }
 
