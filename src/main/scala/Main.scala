@@ -1,12 +1,17 @@
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.commons.codec.binary.Hex
+import org.apache.commons.codec.digest.DigestUtils
+import java.nio.charset.StandardCharsets
 
 import scala.annotation.tailrec
 import scala.sys.exit
 
-object Main {
 
+object Main {
+//  DigestUtils.sha256Hex("foo".getBytes(StandardCharsets.UTF_8))
   private var isAdmin = false
+  private var userEmail = ""
 
   def main(args:Array[String]): Unit = {
     UserDB.connect()
@@ -16,7 +21,7 @@ object Main {
 
   @tailrec
   def startmenu() : Unit = {
-    println("NFL 2021-2022 DATA")
+    println("NFL DATA")
     println("(1) Login")
     println("(2) Sign Up")
     println("(3) Exit")
@@ -29,7 +34,7 @@ object Main {
     }
   }
 
-  @tailrec
+
   def login() : Unit = {
     print("Email: ")
     val email = scala.io.StdIn.readLine()
@@ -44,12 +49,52 @@ object Main {
       }
       else{
 //        println("Not Admin")
-        dataMenu()
+        userEmail = email
+        userMainMenu()
       }
     }
     else{
-      login()
+      startmenu()
     }
+  }
+
+  def userMainMenu() : Unit = {
+    println("==== Main Menu ====")
+    println("(1) NFL Data Menu")
+    println("(2) Show User Info")
+    println("(3) Change Email")
+    println("(4) Change Password")
+    println("(5) Logout")
+    println("(6) Exit")
+    val option = scala.io.StdIn.readLine()
+    option match {
+      case "1" => dataMenu()
+      case "2" => showUserInfo()
+      case "3" => changeEmail()
+      case "4" => changePass()
+      case "5" => userEmail = ""
+                  startmenu()
+      case "6" => exitApp()
+      case _ => userMainMenu()
+    }
+    userMainMenu()
+  }
+
+  def showUserInfo() : Unit = {
+    UserDB.showUserInfo(userEmail)
+  }
+
+  def changePass() : Unit = {
+    print("Enter New Password: ")
+    val pass = scala.io.StdIn.readLine()
+    UserDB.updatePass(userEmail,pass)
+  }
+
+  def changeEmail() : Unit = {
+    print("Enter New Email: ")
+    val newEmail = scala.io.StdIn.readLine()
+    UserDB.updateEmail(newEmail,userEmail)
+    userEmail = newEmail
   }
 
   @tailrec
@@ -68,7 +113,8 @@ object Main {
     if(result == 1){
       println("Account Created!")
       println("")
-      dataMenu()
+      userEmail = email
+      userMainMenu()
     }
     else{
       signup()
@@ -86,7 +132,8 @@ object Main {
     option match {
       case "1" => Hive.showData("7")
       case "2" => userCRUD()
-      case "3" => startmenu()
+      case "3" => userEmail = ""
+                  startmenu()
       case "4" => exitApp()
       case _ => dataMenu()
     }
@@ -101,7 +148,7 @@ object Main {
     println("(3) Give Admin Privileges")
     println("(4) Delete User")
     println("(5) Return to Admin Menu")
-    println("(7) Logout")
+    println("(6) Logout")
     println("(7) Exit")
     val option = scala.io.StdIn.readLine()
     option match {
@@ -110,7 +157,8 @@ object Main {
       case "3" => giveAdmin()
       case "4" => deleteUser()
       case "5" => dataMenuAdmin()
-      case "6" => startmenu()
+      case "6" => userEmail = ""
+                  startmenu()
       case "7" => exitApp()
       case _ => dataMenuAdmin()
     }
@@ -165,9 +213,10 @@ object Main {
     println("(3) Total Penalty Yards")
     println("(4) Total run plays through the right guard position")
     println("(5) Total plays in ShotGun")
-    println("(6) Prediction for next week")
-    println("(7) Logout")
-    println("(8) Exit")
+    println("(6) How many yards will a San Fran RB gain on a single run play for Week 10?")
+    println("(7) Return to Main")
+    println("(8) Logout")
+    println("(9) Exit")
     val option = scala.io.StdIn.readLine()
     option match {
       case "1" => Hive.showData(option)
@@ -176,8 +225,10 @@ object Main {
       case "4" => Hive.showData(option)
       case "5" => Hive.showData(option)
       case "6" => Hive.showData(option)
-      case "7" => startmenu()
-      case "8" => exitApp()
+      case "7" => userMainMenu()
+      case "8" => userEmail = ""
+                  startmenu()
+      case "9" => exitApp()
       case _ => dataMenu()
     }
     dataMenu()

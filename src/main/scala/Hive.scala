@@ -24,8 +24,8 @@ object Hive {
                   "IsPass int, IsSack int, IsPenalty int, RushDirection String, PenaltyYards int)" +
                   "ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'")
 
-    spark.sql("Load data Local Inpath 'nfl_data.csv' into table nfl_data")
-//    spark.sql("select * from nfl_data ").show()
+    spark.sql("Load data Local Inpath 'nfl_data2.csv' into table nfl_data")
+//    spark.sql("select * from nfl_data ").show(100)
   }
 
 
@@ -41,9 +41,9 @@ object Hive {
             "FROM nfl_data WHERE isRush = 1 AND rushDirection = 'RIGHT GUARD'").show()
           case "5" => spark.sql("SELECT count(formation) as Total_Shotgun_Plays " +
             "FROM nfl_Data WHERE formation = 'SHOTGUN'").show()
-          case "6" => spark.sql("SELECT r.count as run_count, m.count as pass_count FROM " +
-            "(SELECT count(isRush) count FROM nfl_data WHERE isRush = 1 AND (gamedate = '2021-11-01' OR gamedate = '2021-10-31')) r, " +
-            "(SELECT count(isPAss) count FROM nfl_data WHERE isPass = 1 AND (gamedate = '2021-11-01' OR gamedate = '2021-10-31')) m").show()
+          case "6" => spark.sql("SELECT ROUND(m.count/r.count,1) as YPC FROM " +
+            "(SELECT count(isRush) count FROM nfl_data WHERE isRush = 1 AND OffenseTeam = 'SF') r, " +
+            "(SELECT sum(yards) count FROM nfl_data WHERE isRush = 1 AND OffenseTeam = 'SF') m ").show()
           case "7" => spark.sql("select * from nfl_data ").show(50)
           case _ => println("No Results")
         }

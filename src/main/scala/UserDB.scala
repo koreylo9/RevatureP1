@@ -1,4 +1,4 @@
-import java.sql.{Connection, DriverManager, SQLException, SQLTimeoutException, Statement}
+import java.sql.{Connection, DriverManager}
 
 
 object UserDB {
@@ -6,7 +6,7 @@ object UserDB {
   private var connection:Connection = _
 
   def connect(): Unit = {
-    var url = "jdbc:mysql://localhost:3306/nflPlays"
+    val url = "jdbc:mysql://localhost:3306/nflPlays"
     val driver = "com.mysql.cj.jdbc.Driver"
     val username = "root"
     val password = "Korgalnol9!"
@@ -15,6 +15,49 @@ object UserDB {
       connection = DriverManager.getConnection(url, username, password)
     } catch {
       case e: Exception => e.printStackTrace()
+    }
+  }
+
+  def showUserInfo(email:String) : Unit = {
+    val statement = connection.createStatement()
+    val resultSet = statement.executeQuery(s"SELECT * FROM users WHERE email = '$email'")
+    if (!resultSet.next()) {
+      println("No user found!")
+    }
+    else {
+      printf("%-25s%-25s%-25s%-25s\n","FirstName", "LastName", "Email", "Password")
+      do {
+        val fname = resultSet.getString("firstname")
+        val lname = resultSet.getString("lastname")
+        val email = resultSet.getString("email")
+        val password = resultSet.getString("password")
+        val isadmin = resultSet.getBoolean("isAdmin")
+        printf("%-25s%-25s%-25s%-25s\n",fname, lname, email, password)
+      } while (resultSet.next())
+    }
+  }
+
+  def updateEmail(newEmail: String, oldEmail: String) : Unit = {
+    val statement = connection.createStatement()
+    val resultSet = statement.executeUpdate(s"UPDATE users SET email = '$newEmail' WHERE email = '$oldEmail'")
+    if(resultSet == 0){
+      println("Error Please Try Again!")
+    }
+    else{
+      println("Email Updated!")
+      println("")
+    }
+  }
+
+  def updatePass(email: String, newPass:String) : Unit = {
+    val statement = connection.createStatement()
+    val resultSet = statement.executeUpdate(s"UPDATE users SET password = '$newPass' WHERE email = '$email'")
+    if(resultSet == 0){
+      println("Error Please try again!")
+    }
+    else{
+      println("Password Updated!")
+      println("")
     }
   }
 
@@ -75,6 +118,7 @@ object UserDB {
       val resultSet = statement.executeQuery(s"SELECT * FROM users WHERE email = '$email' AND password = '$password'")
       if(!resultSet.next()){
         println("Username or password incorrect!")
+        println("")
         false
       }
       else {
